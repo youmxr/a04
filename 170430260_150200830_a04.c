@@ -12,11 +12,32 @@ void reqRes(char* line);
 void relRes(char* line);
 
 typedef struct customer{
-    int * resource;
+    int* maximum;
 }Customer;
 
+Customer* customers;
+int* allocated;
+int* available;
+int* need;
+
 int main (int argc, char *argv[]){
-    
+    char inputFile[100];
+
+    FILE* fp = fopen("sample4_in.txt", "r");
+    if (fp==NULL){
+        printf("could not find/open file.");
+    }
+
+    for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
+        char* tok = strtok(inputFile, ",");
+        int j = 0;
+        while(tok != NULL){
+            customers[i].maximum[j]=atoi(tok);
+            j++;
+            char* tok = strtok(inputFile, ",");
+        }
+    }
+
 
 }
 
@@ -24,7 +45,9 @@ void userInput(char* line){
     int len = strlen(line);
 
     if len<1{
-        outputValues();
+        if (line=="*"){
+            outputValues();
+        }
     }
 
     else{
