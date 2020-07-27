@@ -40,7 +40,6 @@ int main (int argc, char *argv[]){
 
 
 }
-
 void userInput(char* line){
     int len = strlen(line);
 
@@ -49,7 +48,6 @@ void userInput(char* line){
             outputValues();
         }
     }
-
     else{
         char* original = malloc(sizeof(line));
         strcpy(original,line);
@@ -68,3 +66,4 @@ void userInput(char* line){
 
     return;
 }
+
