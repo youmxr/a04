@@ -1,0 +1,99 @@
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <pthread.h>
+#include <sys/stat.h>
+#include <time.h>
+
+void outputValues();
+void userInput(char* line);
+void reqRes(char* line);
+void relRes(char* line);
+
+typedef struct customer{
+    int* maximum;
+}Customer;
+
+Customer* customers;
+int* allocated;
+int* available;
+int* need;
+
+int main (int argc, char *argv[]){
+    if(argc<2)
+	{
+		printf("Input file name missing...exiting with error code -1\n");
+		return -1;
+	}
+    if(argc>2){
+        //char inputFile[100];
+
+        // FILE* fp = fopen("sample4_in.txt", "r");
+        // if (fp==NULL){
+        //     printf("could not find/open file.");
+        // }
+
+        // for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
+        //     char* tok = strtok(inputFile, ",");
+        //     int j = 0;
+        //     while(tok != NULL){
+        //         customers[i].maximum[j]=atoi(tok);
+        //         j++;
+        //         tok = strtok(inputFile, ",");
+        //         }
+
+        //     }
+        printf("\nNumber of Arguments passed: %d", argc);
+        printf("\n-----following-----");
+        for(int i=1; i<argc; i++){
+            printf("%d",atoi(argv[i]));
+            //available[i]=atoi(argv[i]);
+            //printf("%d", available[i]);
+        }
+        printf("\n");
+
+    }
+
+
+    }
+void userInput(char* line){
+    int len = strlen(line);
+
+    if (len<1){
+        if (strcmp(line,"*")){
+            outputValues();
+        }
+    }
+    else{
+        char* original = malloc(sizeof(line));
+        strcpy(original,line);
+
+        char* token = strtok(original, " ");
+
+        if (strcmp(token,"RC")){
+            reqRes(line);
+        }
+        else if (strcmp(token,"RL")){
+            relRes(line);
+        }
+
+        free(original);
+    }
+
+    return;
+}
+void outputValues(){
+
+}
+void reqRes(char* line){
+
+}
+void relRes(char* line){
+
+}
+
+
+
+
+
