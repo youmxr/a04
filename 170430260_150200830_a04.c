@@ -12,6 +12,7 @@ void reqRes(char* line);
 void relRes(char* line);
 
 typedef struct customer{
+    int* allocate;
     int* maximum;
 }Customer;
 
@@ -31,6 +32,15 @@ int main (int argc, char *argv[]){
         num = argc - 1;
         char inputFile[100];
 
+        printf("\nNumber of Arguments passed: %d", argc);
+        printf("\n-----following-----");
+        for(int i=1; i<argc; i++){
+            int k = atoi(argv[i]);
+            available[i]=k;
+            printf("%d", available[i]);
+        }
+        printf("\n");
+
         FILE* fp = fopen("sample4_in.txt", "r");
         if (fp==NULL){
             printf("could not find/open file.");
@@ -46,44 +56,28 @@ int main (int argc, char *argv[]){
             }
 
         }
-        printf("\nNumber of Arguments passed: %d", argc);
-        printf("\n-----following-----");
-        for(int i=1; i<argc; i++){
-            int k = atoi(argv[i]);
-            available[i]=k;
-            printf("%d", available[i]);
-        }
-        printf("\n");
     }
 
-
-    }
+}
 void userInput(char* line){
     int len = strlen(line);
 
-    if (len<1){
+    if (len < 2){
         if (strcmp(line,"*")){
             outputValues();
         }
     }
 
     else{
-        char* original = malloc(sizeof(line));
-        strcpy(original,line);
+        char* token = strtok(line, " ");
 
-        char* token = strtok(original, " ");
-
-        if (strcmp(token,"RC")){
+        if (strcmp(token,"RQ")){
             reqRes(line);
         }
         else if (strcmp(token,"RL")){
             relRes(line);
         }
-
-        free(original);
     }
-
-    return;
 }
 void outputValues(){
     printf("Allocated Resouces: ");
@@ -106,13 +100,39 @@ void outputValues(){
 
 }
 void reqRes(char* line){
+    char* tok = strtok(line," ");
+    bool check = TRUE;
+    int cust = atoi(tok);
+    int* resources;
+
+    for (int i=0; i < num; i++){
+        tok = strtok(line," ");
+        resources[i]= atoi(tok);
+    }
+
+    for (i=0; i<num; i++){
+        if(resources[i]>customers[cust].maximum[i]){
+            check = FALSE;
+        }
+    }
+
+    if (check==FALSE){
+        printf("\nRequested is larger than maximum allowed for this customer.\n");
+    }
+
+    else{
+
+    }
 
 }
 void relRes(char* line){
 
 }
 
+void ThreadRequest(void* customer, void* request){
 
+}
 
+void ThreadRelease(void* customer, void* release){
 
-
+}
