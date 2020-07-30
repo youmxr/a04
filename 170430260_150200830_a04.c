@@ -16,36 +16,53 @@ typedef struct customer{
 }Customer;
 
 Customer* customers;
+int num;
 int* allocated;
 int* available;
 int* need;
 
 int main (int argc, char *argv[]){
-    char inputFile[100];
+    if(argc<2)
+	{
+		printf("Input file name missing...exiting with error code -1\n");
+		return -1;
+	}
+    if(argc>2){
+        num = argc - 1;
+        char inputFile[100];
 
-    FILE* fp = fopen("sample4_in.txt", "r");
-    if (fp==NULL){
-        printf("could not find/open file.");
-    }
-
-    for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
-        char* tok = strtok(inputFile, ",");
-        int j = 0;
-        while(tok != NULL){
-            customers[i].maximum[j]=atoi(tok);
-            j++;
-            char* tok = strtok(inputFile, ",");
+        FILE* fp = fopen("sample4_in.txt", "r");
+        if (fp==NULL){
+            printf("could not find/open file.");
         }
+
+        for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
+            char* tok = strtok(inputFile, ",");
+            int j = 0;
+            while(tok != NULL){
+                customers[i].maximum[j]=atoi(tok);
+                j++;
+                tok = strtok(inputFile, ",");
+            }
+
+        }
+        printf("\nNumber of Arguments passed: %d", argc);
+        printf("\n-----following-----");
+        for(int i=1; i<argc; i++){
+            int k = atoi(argv[i]);
+            available[i]=k;
+            printf("%d", available[i]);
+        }
+        printf("\n");
     }
 
 
-}
-
+    }
 void userInput(char* line){
     int len = strlen(line);
 
-    if len<1{
-        if (line=="*"){
+    if (len<1){
+        if (strcmp(line,"*")){
             outputValues();
         }
     }
@@ -56,10 +73,10 @@ void userInput(char* line){
 
         char* token = strtok(original, " ");
 
-        if (token == 'RQ'){
+        if (strcmp(token,"RC")){
             reqRes(line);
         }
-        else if (token == 'RL'){
+        else if (strcmp(token,"RL")){
             relRes(line);
         }
 
@@ -68,3 +85,34 @@ void userInput(char* line){
 
     return;
 }
+void outputValues(){
+    printf("Allocated Resouces: ");
+
+    for (int i=0;i<num;i++){
+        printf(" %d", allocated[i]);
+    }
+
+    printf("Needed: ");
+
+    for (int i=0;i<num;i++){
+        printf("%d", need[i]);
+    }
+
+    printf("Available: ");
+
+    for (int i=0;i<num;i++){
+        printf("%d", available[i]);
+    }
+
+}
+void reqRes(char* line){
+
+}
+void relRes(char* line){
+
+}
+
+
+
+
+
