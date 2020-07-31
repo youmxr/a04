@@ -139,22 +139,55 @@ void reqRes(char* line){
 
         else{
             for (i=0; i<num; i++){
-                customers[cust].allocate[i]=resources[i];
-            }
+                customers[cust].allocate[i] = customers[cust].allocate[i] + resources[i];
+        }
 
             for (i=0; i<num; i++){
                 allocated[i]=allocated[i]+resources[i];
             }
 
             for (i=0; i<num; i++){
-                available[i]=available[i]+resources[i];
+                available[i]=available[i]-resources[i];
             }
         }
     }
 
 }
 void relRes(char* line){
+    char* tok = strtok(line," ");
+    bool check = TRUE;
+    int cust = atoi(tok);
+    int* resources;
 
+    for (int i=0; i < num; i++){
+        tok = strtok(line," ");
+        resources[i]= atoi(tok);
+    }
+
+    for (i=0; i<num; i++){
+        if(resources[i]>customers[cust].allocate[i]){
+            check = FALSE;
+        }
+    }
+
+    if (check==FALSE){
+        printf("\nRelease is larger than allocated resources for this customer.\n");
+    }
+
+    else{
+        for (i=0; i<num; i++){
+                customers[cust].allocate[i] = customers[cust].allocate[i]-resources[i];
+        }
+
+        for (i=0; i<num; i++){
+                allocated[i] = allocated[i]-resources[i];
+        }
+
+        for (i=0; i<num; i++){
+                available[i] = available[i]+resources[i];
+        }
+
+    }
 }
 
 void SafeSequence(){
