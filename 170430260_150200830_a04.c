@@ -30,7 +30,6 @@ int main (int argc, char *argv[]){
 	}
     if(argc>2){
         num = argc - 1;
-        char inputFile[100];
 
         printf("\nNumber of Arguments passed: %d", argc);
         printf("\n-----following-----");
@@ -42,6 +41,8 @@ int main (int argc, char *argv[]){
         printf("\n");
 
         FILE* fp = fopen("sample4_in.txt", "r");
+        char inputFile[100];
+
         if (fp==NULL){
             printf("could not find/open file.");
         }
@@ -62,9 +63,15 @@ int main (int argc, char *argv[]){
 void userInput(char* line){
     int len = strlen(line);
 
-    if (len < 2){
+    if (len == 1){
         if (strcmp(line,"*")){
             outputValues();
+        }
+    }
+
+    else if(len ==3){
+        if (strcmp(line, "Run"){
+            SafeSequence();
         }
     }
 
@@ -121,7 +128,28 @@ void reqRes(char* line){
     }
 
     else{
+        for (i=0; i<num; i++){
+            if(resources[i]>available[i]){
+                check = FALSE;
+            }
+        }
+        if (check == FALSE){
+            printf("\n NOT ENOUGH resources available.\n");
+        }
 
+        else{
+            for (i=0; i<num; i++){
+                customers[cust].allocate[i]=resources[i];
+            }
+
+            for (i=0; i<num; i++){
+                allocated[i]=allocated[i]+resources[i];
+            }
+
+            for (i=0; i<num; i++){
+                available[i]=available[i]+resources[i];
+            }
+        }
     }
 
 }
@@ -129,10 +157,6 @@ void relRes(char* line){
 
 }
 
-void ThreadRequest(void* customer, void* request){
-
-}
-
-void ThreadRelease(void* customer, void* release){
+void SafeSequence(){
 
 }
