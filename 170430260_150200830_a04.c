@@ -1,3 +1,11 @@
+/*
+Umar Ali (150200830) & Ahmad Salaymeh (170430260)
+
+github.com/youmxr/a04
+
+CP386 Assignment 4
+*/
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,13 +25,13 @@ void relRes(char* line);
 typedef struct customer{
     int* allocate;
     int* maximum;
+    int* need;
 }Customer;
 
 Customer* customers;
 int num;
 int* allocated;
 int* available;
-int* need;
 
 //typedef enum{
 //    false,true
@@ -49,6 +57,10 @@ int main (int argc, char *argv[]){
         }
         printf("\n");
 
+        for (int k=0; k<num;k++){
+            allocated[k]=0;
+        }
+
         FILE* fp = fopen("sample4_in.txt", "r");
         char inputFile[100];
 
@@ -61,6 +73,8 @@ int main (int argc, char *argv[]){
             int j = 0;
             while(tok != NULL){
                 customers[i].maximum[j]=atoi(tok);
+                customers[i].need[j]=atoi(tok);
+                customers[i].allocate[j]=0;
                 j++;
                 tok = strtok(inputFile, ",");
             }
@@ -149,13 +163,8 @@ void reqRes(char* line){
         else{
             for (int i=0; i<num; i++){
                 customers[cust].allocate[i] = customers[cust].allocate[i] + resources[i];
-        }
-
-            for (int i=0; i<num; i++){
+                customers[cust].need[i] = customers[cust].need[i] - resources[i];
                 allocated[i]=allocated[i]+resources[i];
-            }
-
-            for (int i=0; i<num; i++){
                 available[i]=available[i]-resources[i];
             }
         }
@@ -186,13 +195,8 @@ void relRes(char* line){
     else{
         for (int i=0; i<num; i++){
                 customers[cust].allocate[i] = customers[cust].allocate[i]-resources[i];
-        }
-
-        for (int i=0; i<num; i++){
+                customers[cust].need[i] = customers[cust].need[i] + resources[i];
                 allocated[i] = allocated[i]-resources[i];
-        }
-
-        for (int i=0; i<num; i++){
                 available[i] = available[i]+resources[i];
         }
 
