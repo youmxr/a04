@@ -1,7 +1,7 @@
 /*
 Umar Ali (150200830) & Ahmad Salaymeh (170430260)
 
-github.com/youmxr/a04
+LINK: github.com/youmxr/a04
 
 CP386 Assignment 4
 */
@@ -32,6 +32,7 @@ Customer* customers;
 int num;
 int* allocated;
 int* available;
+int* needed;
 
 //typedef enum{
 //    false,true
@@ -45,7 +46,8 @@ int main (int argc, char *argv[]){
 		printf("Input file name missing...exiting with error code -1\n");
 		return -1;
 	}
-    if(argc>2){
+    else if(argc>2){
+        char* command;
         num = argc - 1;
 
         printf("\nNumber of Arguments passed: %d", argc);
@@ -74,14 +76,22 @@ int main (int argc, char *argv[]){
             while(tok != NULL){
                 customers[i].maximum[j]=atoi(tok);
                 customers[i].need[j]=atoi(tok);
+                needed[j]=needed[j]+customers[i].need[j];
                 customers[i].allocate[j]=0;
                 j++;
                 tok = strtok(inputFile, ",");
             }
+        }
 
+        while(1){
+        printf("\nEnter Command: ");
+        fflush(stdin);
+        scanf("%s", command);
+
+        userInput(command);
         }
     }
-
+    return 0;
 }
 void userInput(char* line){
     int len = strlen(line);
@@ -90,11 +100,18 @@ void userInput(char* line){
         if (strcmp(line,"*")){
             outputValues();
         }
+
+        else{
+            printf("\nINVALID INPUT...\n");
+        }
     }
 
-    else if(len ==3){
+    else if(len == 3){
         if (strcmp(line, "Run")){
             //SafeSequence();
+        }
+        else{
+            printf("\nINVALID INPUT...\n");
         }
     }
 
@@ -104,8 +121,13 @@ void userInput(char* line){
         if (strcmp(token,"RQ")){
             reqRes(line);
         }
+
         else if (strcmp(token,"RL")){
             relRes(line);
+        }
+
+        else{
+            printf("\nINVALID INPUT...\n");
         }
     }
 }
@@ -119,7 +141,7 @@ void outputValues(){
     printf("Needed: ");
 
     for (int i=0;i<num;i++){
-        printf("%d", need[i]);
+        printf("%d", needed[i]);
     }
 
     printf("Available: ");
@@ -167,6 +189,8 @@ void reqRes(char* line){
                 allocated[i]=allocated[i]+resources[i];
                 available[i]=available[i]-resources[i];
             }
+
+            printf("\nResource Request Granted.\n");
         }
     }
 
@@ -200,6 +224,7 @@ void relRes(char* line){
                 available[i] = available[i]+resources[i];
         }
 
+        printf("\nResource Release Completed.\n");
     }
 }
 
