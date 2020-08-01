@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <stdbool.h>
+
 
 void outputValues();
 void userInput(char* line);
@@ -21,6 +24,12 @@ int num;
 int* allocated;
 int* available;
 int* need;
+
+//typedef enum{
+//    false,true
+//}
+//boolean;
+
 
 int main (int argc, char *argv[]){
     if(argc<2)
@@ -55,7 +64,7 @@ int main (int argc, char *argv[]){
                 j++;
                 tok = strtok(inputFile, ",");
             }
-            
+
         }
     }
 
@@ -70,8 +79,8 @@ void userInput(char* line){
     }
 
     else if(len ==3){
-        if (strcmp(line, "Run"){
-            SafeSequence();
+        if (strcmp(line, "Run")){
+            //SafeSequence();
         }
     }
 
@@ -108,45 +117,45 @@ void outputValues(){
 }
 void reqRes(char* line){
     char* tok = strtok(line," ");
-    bool check = TRUE;
+    bool check = true;
     int cust = atoi(tok);
-    int* resources;
+    int resources[num];
 
     for (int i=0; i < num; i++){
         tok = strtok(line," ");
         resources[i]= atoi(tok);
     }
 
-    for (i=0; i<num; i++){
+    for (int i=0; i<num; i++){
         if(resources[i]>customers[cust].maximum[i]){
-            check = FALSE;
+            check = false;
         }
     }
 
-    if (check==FALSE){
+    if (check==false){
         printf("\nRequested is larger than maximum allowed for this customer.\n");
     }
 
     else{
-        for (i=0; i<num; i++){
+        for (int i=0; i<num; i++){
             if(resources[i]>available[i]){
-                check = FALSE;
+                check = false;
             }
         }
-        if (check == FALSE){
+        if (check == false){
             printf("\n NOT ENOUGH resources available.\n");
         }
 
         else{
-            for (i=0; i<num; i++){
+            for (int i=0; i<num; i++){
                 customers[cust].allocate[i] = customers[cust].allocate[i] + resources[i];
         }
 
-            for (i=0; i<num; i++){
+            for (int i=0; i<num; i++){
                 allocated[i]=allocated[i]+resources[i];
             }
 
-            for (i=0; i<num; i++){
+            for (int i=0; i<num; i++){
                 available[i]=available[i]-resources[i];
             }
         }
@@ -155,35 +164,35 @@ void reqRes(char* line){
 }
 void relRes(char* line){
     char* tok = strtok(line," ");
-    bool check = TRUE;
+    bool check = true;
     int cust = atoi(tok);
-    int* resources;
+    int resources[num];
 
     for (int i=0; i < num; i++){
         tok = strtok(line," ");
         resources[i]= atoi(tok);
     }
 
-    for (i=0; i<num; i++){
+    for (int i=0; i<num; i++){
         if(resources[i]>customers[cust].allocate[i]){
-            check = FALSE;
+            check = false;
         }
     }
 
-    if (check==FALSE){
+    if (check==false){
         printf("\nRelease is larger than allocated resources for this customer.\n");
     }
 
     else{
-        for (i=0; i<num; i++){
+        for (int i=0; i<num; i++){
                 customers[cust].allocate[i] = customers[cust].allocate[i]-resources[i];
         }
 
-        for (i=0; i<num; i++){
+        for (int i=0; i<num; i++){
                 allocated[i] = allocated[i]-resources[i];
         }
 
-        for (i=0; i<num; i++){
+        for (int i=0; i<num; i++){
                 available[i] = available[i]+resources[i];
         }
 
@@ -191,5 +200,6 @@ void relRes(char* line){
 }
 
 void SafeSequence(){
+    bool flag=true;
 
 }
