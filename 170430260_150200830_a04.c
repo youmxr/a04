@@ -10,11 +10,11 @@ CP386 Assignment 4
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <pthread.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <stdbool.h>
+#include <semaphore.h>
 
 
 void outputValues();
@@ -30,9 +30,11 @@ typedef struct customer{
 
 Customer* customers;
 int num;
+int custNum;
 int* allocated;
 int* available;
 int* needed;
+int* safeSequence;
 
 //typedef enum{
 //    false,true
@@ -49,6 +51,7 @@ int main (int argc, char *argv[]){
     else if(argc>2){
         char* command;
         num = argc - 1;
+        custNum=0;
 
         printf("\nNumber of Arguments passed: %d", argc);
         printf("\n-----following-----");
@@ -71,6 +74,7 @@ int main (int argc, char *argv[]){
         }
 
         for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
+            custNum++;
             char* tok = strtok(inputFile, ",");
             int j = 0;
             while(tok != NULL){
@@ -108,7 +112,7 @@ void userInput(char* line){
 
     else if(len == 3){
         if (strcmp(line, "Run")){
-            //SafeSequence();
+            RunProgram();
         }
         else{
             printf("\nINVALID INPUT...\n");
@@ -156,6 +160,7 @@ void reqRes(char* line){
     bool check = true;
     int cust = atoi(tok);
     int resources[num];
+    printf("\n Request for customer #%d\n", cust);
 
     for (int i=0; i < num; i++){
         tok = strtok(line," ");
@@ -201,6 +206,8 @@ void relRes(char* line){
     int cust = atoi(tok);
     int resources[num];
 
+    printf("\n Release for customer #%d\n", cust);
+
     for (int i=0; i < num; i++){
         tok = strtok(line," ");
         resources[i]= atoi(tok);
@@ -228,7 +235,112 @@ void relRes(char* line){
     }
 }
 
-void SafeSequence(){
-    bool flag=true;
+void RunProgram(){
+    bool safe=SafeSequence();
 
+    if(safe==false){
+        printf("Release resources before continuing...");
+    }
+
+    else{
+        for (int p=0; p<custNum; p++){
+            int runP=safeSequence[p];
+
+            pthread_t threadID;
+			pthread_attr_t newThread;
+			pthread_attr_init(&newThread);
+
+			pthread_create(&threadID, &newThread, RunThread, (void *)&runP);
+
+
+			pthread_join(threadID, NULL);
+        }
+    }
+    return;
+}
+
+void *RunThread(void *thread){
+    int *tid = (int*)thread;
+    int h=0;
+
+	printf("\n Customer/Thread %d\n", *tid);
+
+    printf("Allocated Resources: ");
+    for (int h=0; h<num; h++){
+        printf("%d", customers[*tid].allocate[h]);
+    }
+
+    printf("\nAvailable Resources: ");
+    for (h=0; h<num; h++){
+        printf("%d", available[h]);
+    }
+
+    printf("\nThread has started.\n");
+    printf("\nThread has finished.\n");
+    printf("\nThread is releasing.\n");
+    printf("NEW Available: ");
+
+    for (h=0; h<num; h++){
+        available[h]+=customers[*tid].allocate[h];
+        printf("%d", available[h]);
+    }
+
+    for (h=0; h<num; h++){
+        customers[*tid].allocate[h] = 0;
+        customers[*tid].need[h] = customers[*tid].maximum[h];
+    }
+
+}
+
+bool SafeSequence(){
+    bool check = false;
+    bool safe = false;
+    int k, b;
+    int count = custNum;
+    int finish[custNum];
+    for(k=0;k<custNum;k++){
+        finish[k]=0;
+    }
+    int avail_copy[num];
+    for (k=0;k<num;k++){
+        avail_copy[k]=available[k];
+    }
+    Customer* state_copy=(Customer*) malloc (sizeof(Customer)*num);
+
+    for(k=0;k<custNum;k++){
+        for(b=0; b<num;b++){
+            state_copy[k].need[b] = customers[k].need[b];
+            state_copy[k].allocate[b] = customers[k].need[b];
+        }
+    }
+
+    while(count>0){
+        safe = false;
+
+        for (k=0; k<custNum; k++){
+            if (finish[k] == 0){
+                check = true;
+                for (b=0; b<num; b++){
+                    if(state_copy[k].need[b] > avail_copy[b]){
+                        check=false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (check==true){
+            finish[k] = 1;
+            safeSequence[custNum-count] = k;
+            count--;
+            safe = true;
+        }
+        for(b=0; b<num; b++){
+            avail_copy[b]+= state_copy[k].allocate[b];
+        }
+    }
+
+    if(safe==false){
+        printf("\nNOT SAFE TO RUN...\n");
+    }
+    return safe;
 }
