@@ -81,11 +81,36 @@ Enter one of the following commands to test the program
 - _Main_
 - _documentation_ 
 
+## **TESTS**
+EX: ./170430260_150200830 10 10 10 10
 
+      0 10 10
+
+      Number of Arguments passed: 4
+      -----following-----
+      Reading file...
+      6,4,7,3
+      4,2,3,2
+      2,5,3,3
+      6,3,3,2
+      5,6,7,5
+      DONE file reading...
+      Enter Command: 
+      * , Run , RQ, RL, 1
+
+## **CODE EXAMPLE**
+*: Provides information on the allocated resources, needed resources and the avilable resources
+Run:  Determins and runs the safe sequence 
 ## **AUTHORS**
 
 *Umar Ali & Ahmad Salaymeh*
 
+## **CREDITS**
+Umar Ali, Contributer
+
+Ahmad Salaymeh  Contributer
+
+Linux Manual [https://linux.die.net/man/]
 
 ## **LICENCES**
 
