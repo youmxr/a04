@@ -19,25 +19,28 @@ CP386 Assignment 4
 
 void outputValues();
 void userInput(char* line);
-void reqRes(char* line);
+void reqRes(int line[]);
 void relRes(char* line);
 void RunProgram();
 int SafeSequence();
 void *RunThread(void *thread);
 
 typedef struct customer{
-    int* allocate;
-    int* maximum;
-    int* need;
+    int cID;
+    int allocate[4];
+    int maximum[4];
+    int need[4];
 }Customer;
 
 Customer* customers;
-int num;
-int custNum;
-int* allocated;
-int* available;
-int* needed;
-int* safeSequence;
+int num=0;
+int custNum=0;
+int allocated[4];
+int available[4];
+int needed[4];
+int safeSequence[5];
+
+sem_t oSem;
 
 //typedef enum{
 //    false,true
@@ -46,6 +49,8 @@ int* safeSequence;
 
 
 int main (int argc, char *argv[]){
+    sem_init(&oSem, 0, 1);
+    Customer* c = (Customer*) malloc(sizeof(Customer)*5);
     if(argc<2)
 	{
 		printf("Input file name missing...exiting with error code -1\n");
@@ -56,11 +61,13 @@ int main (int argc, char *argv[]){
         num = argc - 1;
         custNum=0;
 
-        printf("\nNumber of Arguments passed: %d", argc);
         printf("\n-----following-----");
-        for(int i=1; i<argc; i++){
+
+        printf("\nNumber of Arguments passed: %d", num);
+        printf("\n-----following-----");
+        for(int i = 1; i<5; i++){
             int k = atoi(argv[i]);
-            available[i]=k;
+            available[i-1] = k;
             printf("%d", available[i]);
         }
         printf("\n");
@@ -68,6 +75,8 @@ int main (int argc, char *argv[]){
         for (int k=0; k<num;k++){
             allocated[k]=0;
         }
+
+        printf("Reading file...\n");
 
         FILE* fp = fopen("sample4_in.txt", "r");
         char inputFile[100];
@@ -77,18 +86,31 @@ int main (int argc, char *argv[]){
         }
 
         for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
+            c[i].cID=i;
+            printf("Reading file...\n");
+            printf("%s\n",inputFile);
             custNum++;
-            char* tok = strtok(inputFile, ",");
+            //char* tok = strtok(inputFile, ",");
+            //printf("%s\n",tok);
             int j = 0;
-            while(tok != NULL){
-                customers[i].maximum[j]=atoi(tok);
-                customers[i].need[j]=atoi(tok);
-                needed[j]=needed[j]+customers[i].need[j];
-                customers[i].allocate[j]=0;
-                j++;
-                tok = strtok(inputFile, ",");
+            int n=0;
+            int m = inputFile[j] - '0';
+            while(j<7){
+                printf("\n%d",m);
+                c[i].maximum[n] = m;
+                c[i].need[n] = m;
+                needed[n]+=c[i].need[n];
+                c[i].allocate[n]=0;
+                j+=2;
+                n++;
+                //tok = strtok(inputFile, ",");
+                //printf("%s",tok);
+                //m = atoi(tok);
+                m = inputFile[j] - '0';
             }
         }
+        printf("DONE file reading...");
+        customers=c;
 
         while(1){
 
@@ -97,7 +119,15 @@ int main (int argc, char *argv[]){
         fflush(stdin);
         scanf("%s", command);
 
-        userInput(command);
+        printf("%s",command);
+
+        if (!(strcmp(command,"1")))
+        {
+            break;
+        }
+        else{
+            userInput(command);
+        }
         }
     }
     return 0;
@@ -105,8 +135,10 @@ int main (int argc, char *argv[]){
 void userInput(char* line){
     int len = strlen(line);
 
+    printf("%d",len);
+
     if (len == 1){
-        if (strcmp(line,"*")){
+        if (!(strcmp(line,"*"))){
             outputValues();
         }
 
@@ -116,7 +148,7 @@ void userInput(char* line){
     }
 
     else if(len == 3){
-        if (strcmp(line, "Run")){
+        if (!(strcmp(line, "Run"))){
             RunProgram();
         }
         else{
@@ -127,11 +159,19 @@ void userInput(char* line){
     else{
         char* token = strtok(line, " ");
 
-        if (strcmp(token,"RQ")){
-            reqRes(line);
+        if (!(strcmp(token,"RQ"))){
+            int array[5];
+            token = strtok(NULL," ");
+            int j=0;
+            while(token!=NULL){
+                array[j]=atoi(token);
+                printf("\n%d",array[j]);
+                token = strtok(NULL," ");
+            }
+            reqRes(array);
         }
 
-        else if (strcmp(token,"RL")){
+        else if (!(strcmp(token,"RL"))){
             relRes(line);
         }
 
@@ -144,32 +184,32 @@ void outputValues(){
     printf("Allocated Resouces: ");
 
     for (int i=0;i<num;i++){
-        printf(" %d", allocated[i]);
+        printf(" %d ", allocated[i]);
     }
 
     printf("Needed: ");
 
     for (int i=0;i<num;i++){
-        printf("%d", needed[i]);
+        printf(" %d ", needed[i]);
     }
 
     printf("Available: ");
 
     for (int i=0;i<num;i++){
-        printf("%d", available[i]);
+        printf(" %d ", available[i]);
     }
 
 }
-void reqRes(char* line){
-    char* tok = strtok(line," ");
+void reqRes(int line[]){
     int check = 1;
-    int cust = atoi(tok);
+    int cust = line[0];
     int resources[num];
-    printf("\n Request for customer #%d\n", cust);
+    printf("\nRequest for customer #%d\n", cust);
+    sem_wait(&oSem);
 
     for (int i=0; i < num; i++){
-        tok = strtok(line," ");
-        resources[i]= atoi(tok);
+        resources[i]= line[i+1];
+        printf("\n%d\n",resources[i]);
     }
 
     for (int i=0; i<num; i++){
@@ -204,18 +244,20 @@ void reqRes(char* line){
         }
     }
 
+    sem_post(&oSem);
+
+    return;
 }
 void relRes(char* line){
-    char* tok = strtok(line," ");
     int check = 1;
-    int cust = atoi(tok);
+    int cust = line[0];
     int resources[num];
 
     printf("\n Release for customer #%d\n", cust);
+    sem_wait(&oSem);
 
     for (int i=0; i < num; i++){
-        tok = strtok(line," ");
-        resources[i]= atoi(tok);
+        resources[i]= line[(i+1)];
     }
 
     for (int i=0; i<num; i++){
@@ -238,6 +280,9 @@ void relRes(char* line){
 
         printf("\nResource Release Completed.\n");
     }
+    sem_post(&oSem);
+
+    return;
 }
 
 void RunProgram(){
@@ -267,7 +312,9 @@ void *RunThread(void *thread){
     int *tid = (int*)thread;
     int h=0;
 
-	printf("\n Customer/Thread %d\n", *tid);
+    sem_wait(&oSem);
+
+	printf("\n Customer/Thread %d\n", customers[*tid].cID);
 
     printf("Allocated Resources: ");
     for (int h=0; h<num; h++){
@@ -293,7 +340,8 @@ void *RunThread(void *thread){
         customers[*tid].allocate[h] = 0;
         customers[*tid].need[h] = customers[*tid].maximum[h];
     }
-    exit(0);
+    sem_post(&oSem);
+    pthread_exit(0);
 }
 
 int SafeSequence(){
