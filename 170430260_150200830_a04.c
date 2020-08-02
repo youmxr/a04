@@ -51,6 +51,7 @@ sem_t oSem;
 int main (int argc, char *argv[]){
     sem_init(&oSem, 0, 1);
     Customer* c = (Customer*) malloc(sizeof(Customer)*5);
+    customers=c;
     if(argc<2)
 	{
 		printf("Input file name missing...exiting with error code -1\n");
@@ -60,15 +61,12 @@ int main (int argc, char *argv[]){
         char* command;
         num = argc - 1;
         custNum=0;
-
-        printf("\n-----following-----");
-
         printf("\nNumber of Arguments passed: %d", num);
         printf("\n-----following-----");
         for(int i = 1; i<5; i++){
             int k = atoi(argv[i]);
             available[i-1] = k;
-            printf("%d", available[i]);
+            //printf("%d", available[i]);
         }
         printf("\n");
 
@@ -84,11 +82,10 @@ int main (int argc, char *argv[]){
         if (fp==NULL){
             printf("could not find/open file.");
         }
-
         for(int i = 0; fgets(inputFile,sizeof(inputFile),fp); i++){
             c[i].cID=i;
-            printf("Reading file...\n");
-            printf("%s\n",inputFile);
+            
+            printf("%s",inputFile);
             custNum++;
             //char* tok = strtok(inputFile, ",");
             //printf("%s\n",tok);
@@ -96,7 +93,7 @@ int main (int argc, char *argv[]){
             int n=0;
             int m = inputFile[j] - '0';
             while(j<7){
-                printf("\n%d",m);
+               // printf("\n%d",m);
                 c[i].maximum[n] = m;
                 c[i].need[n] = m;
                 needed[n]+=c[i].need[n];
@@ -109,14 +106,16 @@ int main (int argc, char *argv[]){
                 m = inputFile[j] - '0';
             }
         }
-        printf("DONE file reading...");
-        customers=c;
+        printf("\nDONE file reading...");
 
         while(1){
-
+        
         printf("\nEnter Command: ");
+        printf("\n* , Run , RQ, RL, 1\n");
+
         command=malloc(100);
         fflush(stdin);
+        printf(":");
         scanf("%s", command);
 
         printf("%s",command);
@@ -165,7 +164,7 @@ void userInput(char* line){
             int j=0;
             while(token!=NULL){
                 array[j]=atoi(token);
-                printf("\n%d",array[j]);
+                printf("\n%d\n",array[j]);
                 token = strtok(NULL," ");
             }
             reqRes(array);
@@ -206,23 +205,29 @@ void reqRes(int line[]){
     int resources[num];
     printf("\nRequest for customer #%d\n", cust);
     sem_wait(&oSem);
+    
 
     for (int i=0; i < num; i++){
         resources[i]= line[i+1];
         printf("\n%d\n",resources[i]);
+        
     }
 
     for (int i=0; i<num; i++){
         if(resources[i]>customers[cust].maximum[i]){
             check = 0;
+               
         }
     }
+ 
 
     if (check==0){
         printf("\nRequested is larger than maximum allowed for this customer.\n");
+        
     }
 
     else{
+       
         for (int i=0; i<num; i++){
             if(resources[i]>available[i]){
                 check = 0;
@@ -375,7 +380,6 @@ int SafeSequence(){
                 for (b=0; b<num; b++){
                     if(state_copy[k].need[b] > avail_copy[b]){
                         check=0;
-                        break;
                     }
                 }
             }
@@ -389,6 +393,7 @@ int SafeSequence(){
         for(b=0; b<num; b++){
             avail_copy[b]+= state_copy[k].allocate[b];
         }
+        
     }
 
     if(safe==0){
