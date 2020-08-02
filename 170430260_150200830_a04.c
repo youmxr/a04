@@ -21,6 +21,9 @@ void outputValues();
 void userInput(char* line);
 void reqRes(char* line);
 void relRes(char* line);
+void RunProgram();
+int SafeSequence();
+void *RunThread(void *thread);
 
 typedef struct customer{
     int* allocate;
@@ -88,7 +91,9 @@ int main (int argc, char *argv[]){
         }
 
         while(1){
+
         printf("\nEnter Command: ");
+        command=malloc(100);
         fflush(stdin);
         scanf("%s", command);
 
@@ -157,7 +162,7 @@ void outputValues(){
 }
 void reqRes(char* line){
     char* tok = strtok(line," ");
-    bool check = true;
+    int check = 1;
     int cust = atoi(tok);
     int resources[num];
     printf("\n Request for customer #%d\n", cust);
@@ -169,21 +174,21 @@ void reqRes(char* line){
 
     for (int i=0; i<num; i++){
         if(resources[i]>customers[cust].maximum[i]){
-            check = false;
+            check = 0;
         }
     }
 
-    if (check==false){
+    if (check==0){
         printf("\nRequested is larger than maximum allowed for this customer.\n");
     }
 
     else{
         for (int i=0; i<num; i++){
             if(resources[i]>available[i]){
-                check = false;
+                check = 0;
             }
         }
-        if (check == false){
+        if (check == 0){
             printf("\n NOT ENOUGH resources available.\n");
         }
 
@@ -202,7 +207,7 @@ void reqRes(char* line){
 }
 void relRes(char* line){
     char* tok = strtok(line," ");
-    bool check = true;
+    int check = 1;
     int cust = atoi(tok);
     int resources[num];
 
@@ -215,11 +220,11 @@ void relRes(char* line){
 
     for (int i=0; i<num; i++){
         if(resources[i]>customers[cust].allocate[i]){
-            check = false;
+            check = 0;
         }
     }
 
-    if (check==false){
+    if (check==0){
         printf("\nRelease is larger than allocated resources for this customer.\n");
     }
 
@@ -236,9 +241,10 @@ void relRes(char* line){
 }
 
 void RunProgram(){
-    bool safe=SafeSequence();
+    int safe;
+    safe=SafeSequence();
 
-    if(safe==false){
+    if(safe==0){
         printf("Release resources before continuing...");
     }
 
@@ -249,9 +255,7 @@ void RunProgram(){
             pthread_t threadID;
 			pthread_attr_t newThread;
 			pthread_attr_init(&newThread);
-
 			pthread_create(&threadID, &newThread, RunThread, (void *)&runP);
-
 
 			pthread_join(threadID, NULL);
         }
@@ -289,12 +293,12 @@ void *RunThread(void *thread){
         customers[*tid].allocate[h] = 0;
         customers[*tid].need[h] = customers[*tid].maximum[h];
     }
-
+    exit(0);
 }
 
-bool SafeSequence(){
-    bool check = false;
-    bool safe = false;
+int SafeSequence(){
+    int check = 0;
+    int safe = 0;
     int k, b;
     int count = custNum;
     int finish[custNum];
@@ -315,31 +319,31 @@ bool SafeSequence(){
     }
 
     while(count>0){
-        safe = false;
+        safe = 0;
 
         for (k=0; k<custNum; k++){
             if (finish[k] == 0){
-                check = true;
+                check = 1;
                 for (b=0; b<num; b++){
                     if(state_copy[k].need[b] > avail_copy[b]){
-                        check=false;
+                        check=0;
                         break;
                     }
                 }
             }
         }
-        if (check==true){
+        if (check==1){
             finish[k] = 1;
             safeSequence[custNum-count] = k;
             count--;
-            safe = true;
+            safe = 1;
         }
         for(b=0; b<num; b++){
             avail_copy[b]+= state_copy[k].allocate[b];
         }
     }
 
-    if(safe==false){
+    if(safe==0){
         printf("\nNOT SAFE TO RUN...\n");
     }
     return safe;
